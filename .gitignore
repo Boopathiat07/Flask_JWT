@@ -1,0 +1,6 @@
+.env
+connection.py
+
+__pycache__
+env3.10
+api/__pycache__
