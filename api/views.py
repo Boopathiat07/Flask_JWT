@@ -1,27 +1,11 @@
-from ..app import db
 from flask import request, jsonify, Blueprint
 from sqlalchemy import text
-from datetime import datetime
+from createapp import db
+from dbModels import User
 
-views = Blueprint('view', __name__)
+crud_view = Blueprint('view', __name__)
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(50))
-    email = db.Column(db.String(50), unique = True)
-    date_joined = db.Column(db.Date, default=datetime.utcnow)
-
-    def __init__(self,id,name,email,date_joined):
-        self.name = name
-        self.email = email
-        self.date_joined = date_joined
-        self.id = id
-
-# with view.app_context():
-#     db.create_all()
-#     db.session.commit()
-
-@views.route('/adduser', methods=['POST'])
+@crud_view.route('/adduser', methods=['POST'])
 def create_user():
     try:
         data = request.get_json()
@@ -43,7 +27,7 @@ def create_user():
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
-@views.route("/users", methods=['GET'])
+@crud_view.route("/users", methods=['GET'])
 def user_list():
     try:
         
@@ -59,7 +43,7 @@ def user_list():
         db.session.rollback()
         return jsonify({"error":str(e)}), 500
 
-@views.route('/deleteUser/<int:id>', methods =['DELETE'])
+@crud_view.route('/deleteUser/<int:id>', methods =['DELETE'])
 def del_user(id):
     try:
         result = db.get_or_404(User, id)
@@ -75,7 +59,7 @@ def del_user(id):
         db.session.rollback()
         return jsonify({"error":str(e)}), 500
 
-@views.route("/userUpdate", methods =['PUT'])
+@crud_view.route("/userUpdate", methods =['PUT'])
 def update_user():
     try:
         users = request.get_json()
