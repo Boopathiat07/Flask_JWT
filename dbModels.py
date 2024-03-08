@@ -1,7 +1,7 @@
-from createApp import db
+from create_app import db
 from datetime import datetime
 
-class User(db.Model):
+class user(db.Model):
     email = db.Column(db.String(30), primary_key = True)
     name = db.Column(db.String(30))
     mobile = db.Column(db.String(20), unique = True)
@@ -14,7 +14,7 @@ class User(db.Model):
         self.name = name
 
 
-class UserSession(db.Model):
+class user_session(db.Model):
     jti = db.Column(db.String(50), primary_key = True)
     logIn = db.Column(db.DateTime)
     logout = db.Column(db.DateTime)
