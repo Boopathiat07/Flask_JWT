@@ -1,5 +1,4 @@
 from create_app import db
-from datetime import datetime
 
 class user(db.Model):
     email = db.Column(db.String(30), primary_key = True)

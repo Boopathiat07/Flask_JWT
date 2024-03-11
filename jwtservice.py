@@ -57,11 +57,9 @@ def authenticate():
             existing_user = db.get_or_404(user, user_id)
         except:
             return ErrorHandling.handle_not_found("No User Found")
-    
-        userSession = db.get_or_404(user_session, jti_id)
-
+        
         try:
-           userSession = db.get_or_404(user_session, jti_id)
+            userSession = db.get_or_404(user_session, jti_id)
         except:
             return ErrorHandling.handle_not_found("No Session Found")
 

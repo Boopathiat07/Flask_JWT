@@ -1,42 +1,25 @@
-from create_app import db, bcrypt
+from create_app import db, bcrypt, redis_cache
 from flask import Blueprint, request
 from dbModels import user as User, user_session
 from jwtservice import generate_access_token, generate_refresh_token,authenticate
 from datetime import datetime
 from response import response
 from errorhandling import ErrorHandling
-# from flask_restplus import Api, Resource, reqparse 
-
-# parser = reqparse.RequestParser()
 
 user_view= Blueprint('user', __name__, url_prefix='/api/v1/')
 
-# user_view = Api(user_v)
-
-
-
-
-
-
-
-
-
 @user_view.route("/signup", methods=['POST'])
-# class user_signup(Resource):   
-#     def ffun():
 def user_signup():
     try:
-        # parser.add_argument('name', type=str, required=True, help='User name')
-        # parser.add_argument('email', type=str, required=True, help='User email')
-        # parser.add_argument('mobile', type=str, help='User mobile number')
-        # parser.add_argument('password', type=str, required=True, help='User password')
-
-        # data = parser.parse_args()
-
         data = request.get_json()
+
         if data is None:
             return ErrorHandling.hanlde_bad_request("No Data found")
         
+
+        if 'email' not in data or 'mobile' not in data or 'password' not in data or 'name' not in data:
+            return ErrorHandling.hanlde_bad_request("required field should not be empty")
+
         email = data.get('email')
         mobile = data.get('mobile')
         password = data.get('password')
