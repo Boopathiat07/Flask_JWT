@@ -16,6 +16,9 @@ app = Flask(__name__)
 app.secret_key = os.getenv('APP_SECRET_KEY')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
+
+app.config['SQLALCHEMY_BINDS'] = {'slave' : SQLALCHEMY_DATABASE_URI}
+
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 
 bcrypt = Bcrypt(app) 

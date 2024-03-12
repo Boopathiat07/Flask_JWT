@@ -2,7 +2,7 @@ import jwt
 from datetime import datetime, timedelta
 import uuid
 from create_app import app, db
-from dbModels import user_session, user
+from dbModels import user_session, master as user
 from flask import request
 from errorhandling import ErrorHandling
 
@@ -16,8 +16,7 @@ def generate_access_token(user_id):
         'iat': logintime,
         'jti': uniqueId,
         'id': user_id,
-    }
-    
+    }    
 
     usersession = user_session(jti=uniqueId, logIn=logintime, user_id=user_id, logout=None, islogout=False)
 
@@ -67,7 +66,7 @@ def authenticate():
             return ErrorHandling.hanlde_bad_request("Session Expired")
 
     except Exception as e:
-        return ErrorHandling.handle_unauthorize(str(e))
+        return ErrorHandling.handle_unauthorize("Invalid Token")
 
     request.current_user = user_id
     request.jtiID = jti_id

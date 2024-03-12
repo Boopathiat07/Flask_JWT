@@ -32,12 +32,5 @@ def google_login():
 @oauth2_view.route("/signin-google")
 def google_callback():
     token = oauth.oauth2login.authorize_access_token(access_type="offline")
-    access_token = token.get("access_token")
-    refresh_token = token.get("refresh_token")
-    res = {
-        "accessToken" : access_token,
-        "refreshToken" :refresh_token
-    }
-
-    return res
+    return token
 

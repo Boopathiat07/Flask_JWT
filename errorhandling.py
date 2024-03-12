@@ -1,6 +1,5 @@
 from flask import jsonify
 
-
 class ErrorHandling():
     def handle_server_request(e):
         return jsonify({"message":e}), 500

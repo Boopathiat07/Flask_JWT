@@ -1,6 +1,7 @@
 from create_app import db
 
-class user(db.Model):
+class master(db.Model):
+    __tablename__ = 'users'
     email = db.Column(db.String(30), primary_key = True)
     name = db.Column(db.String(30))
     mobile = db.Column(db.String(20), unique = True)
@@ -12,6 +13,20 @@ class user(db.Model):
         self.password = password
         self.name = name
 
+class slave(db.Model):
+    __bind_key__ = 'slave'
+    
+    __tablename__ = 'users'
+    email = db.Column(db.String(30), primary_key = True)
+    name = db.Column(db.String(30))
+    mobile = db.Column(db.String(20), unique = True)
+    password = db.Column(db.String(100))
+    
+    def __init__(self, email, mobile, password, name):
+        self.email = email
+        self.mobile = mobile
+        self.password = password
+        self.name = name
 
 class user_session(db.Model):
     jti = db.Column(db.String(50), primary_key = True)

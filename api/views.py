@@ -1,6 +1,8 @@
 from create_app import db, bcrypt, redis_cache
 from flask import Blueprint, request
-from dbModels import user as User, user_session
+from dbModels import user_session
+from dbModels import master, slave 
+
 from jwtservice import generate_access_token, generate_refresh_token,authenticate
 from datetime import datetime
 from response import response
@@ -11,11 +13,7 @@ user_view= Blueprint('user', __name__, url_prefix='/api/v1/')
 @user_view.route("/signup", methods=['POST'])
 def user_signup():
     try:
-        data = request.get_json()
-
-        if data is None:
-            return ErrorHandling.hanlde_bad_request("No Data found")
-        
+        data = request.get_json()        
 
         if 'email' not in data or 'mobile' not in data or 'password' not in data or 'name' not in data:
             return ErrorHandling.hanlde_bad_request("required field should not be empty")
@@ -26,10 +24,13 @@ def user_signup():
         name = data.get('name')
     
         hashed_pswd = bcrypt.generate_password_hash(password).decode('utf-8')
-    
-        new_user = User(email=email, mobile=mobile, password=hashed_pswd, name=name)
-        db.session.add(new_user)
-        db.session.commit()
+        
+        try:
+            new_user = master(email=email, mobile=mobile, password=hashed_pswd, name=name)
+            db.session.add(new_user)
+            db.session.commit()
+        except:
+            return ErrorHandling.hanlde_bad_request("User Already Exist")
 
         accessToken = generate_access_token(email)
         refreshToken = generate_refresh_token(email)
@@ -42,7 +43,7 @@ def user_signup():
     
     except Exception as e:
         db.session.rollback()
-        return ErrorHandling.hanlde_bad_request("User Already exist")
+        return ErrorHandling.hanlde_bad_request("No payload found")
     
 
 @user_view.route("/login", methods = ['GET'])
@@ -53,7 +54,7 @@ def userLogin():
         email = str(data.get('email'))
         password = str(data.get('password'))
         try:
-            user = db.get_or_404(User,email)
+            user = db.get_or_404(slave,email)
         except:
             return ErrorHandling.handle_not_found("No User Found")
         
@@ -96,10 +97,10 @@ def userLogOut():
 def userprofile():
     user_id = request.current_user
     try:
-        user = db.get_or_404(User, user_id)
+        user = db.get_or_404(slave, user_id)
     except:
         return ErrorHandling.handle_not_found("No User Found")
-    result = {"email" : user.email, "mobile" : user.mobile}
+    result = {"email" : user.email, "mobile" : user.mobile, "name" : user.name}
 
     return response.function(result)
 
@@ -110,7 +111,7 @@ def updateProfile():
 
     user_id = request.current_user
     try:
-        user = db.get_or_404(User, user_id)
+        user = db.get_or_404(master, user_id)
     except:
         return ErrorHandling.handle_not_found("No User Found")
     
