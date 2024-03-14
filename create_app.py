@@ -1,7 +1,8 @@
 from flask import Flask
-from config import SQLALCHEMY_DATABASE_URI, cluster
+from config import SQLALCHEMY_DATABASE_URI, cluster, Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+from flask_caching import Cache
 import os
 from dotenv import load_dotenv
 import redis
@@ -31,10 +32,12 @@ MONGODB_COLLECTION=os.getenv('MONGODB_COLLECTION')
 data_base = cluster[MONGODB_CLUSTER]
 col = data_base[MONGODB_COLLECTION]
 
-app.config.from_object('config.Config') 
-redis_cache = redis.Redis()
+app.config.from_object(Config) 
+redis_cache = redis.Redis(host=Config.CACHE_REDIS_HOST, port=Config.CACHE_REDIS_PORT,db=Config.CACHE_REDIS_DB)
 
+# cache = Cache(config={'CACHE_TYPE': 'redis'})
 
+cache = Cache(app)
 
 # logging.basicConfig(filename='cron.log', level=logging.DEBUG)
 

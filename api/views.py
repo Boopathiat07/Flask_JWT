@@ -1,14 +1,19 @@
-from create_app import db, bcrypt, redis_cache
+from create_app import db, bcrypt, redis_cache, cache
 from flask import Blueprint, request
 from dbModels import user_session
 from dbModels import master, slave 
-
-from jwtservice import generate_access_token, generate_refresh_token,authenticate
+import random, string
+from jwtservice import generate_access_token, generate_refresh_token,authenticate, uniqueId
 from datetime import datetime
 from response import response
 from errorhandling import ErrorHandling
 
 user_view= Blueprint('user', __name__, url_prefix='/api/v1/')
+
+def random_string_generator():
+    length = 10
+    characters = string.ascii_letters + string.digits + string.punctuation
+    return ''.join(random.choice(characters) for _ in range(length))
 
 @user_view.route("/signup", methods=['POST'])
 def user_signup():
@@ -94,7 +99,9 @@ def userLogOut():
 
 
 @user_view.route("/getprofile", methods = ['GET'])
+@cache.cached(timeout=30, make_cache_key=uniqueId)
 def userprofile():
+    print("hey !!!")
     user_id = request.current_user
     try:
         user = db.get_or_404(slave, user_id)
@@ -134,6 +141,5 @@ def userSession():
 @user_view.before_request
 def jwt_authentication():
     authenticate()
-
 
 

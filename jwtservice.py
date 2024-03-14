@@ -1,7 +1,7 @@
 import jwt
 from datetime import datetime, timedelta
 import uuid
-from create_app import app, db
+from create_app import app, db, redis_cache
 from dbModels import user_session, master as user
 from flask import request
 from errorhandling import ErrorHandling
@@ -19,7 +19,7 @@ def generate_access_token(user_id):
     }    
 
     usersession = user_session(jti=uniqueId, logIn=logintime, user_id=user_id, logout=None, islogout=False)
-
+    
     db.session.add(usersession)
     db.session.commit()
     return jwt.encode(payload, str(app.config['SECRET_KEY']), algorithm='HS256')

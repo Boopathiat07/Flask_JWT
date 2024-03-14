@@ -1,7 +1,15 @@
 .env
 
+/.vscode
+
 /myenv
 
 /__pycache__
 
 /api/__pycache__
+
+/uploads
+
+/FileExtensions
+
+/CopiedFiles
