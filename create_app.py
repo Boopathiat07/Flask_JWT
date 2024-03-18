@@ -1,5 +1,5 @@
 from flask import Flask
-from config import SQLALCHEMY_DATABASE_URI, cluster, Config
+from config import SQLALCHEMY_DATABASE_URI, cluster, Config, SQLALCHEMY_ST_DATABASE_URI
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_caching import Cache
@@ -18,7 +18,9 @@ app.secret_key = os.getenv('APP_SECRET_KEY')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 
-app.config['SQLALCHEMY_BINDS'] = {'slave' : SQLALCHEMY_DATABASE_URI}
+app.config['SQLALCHEMY_BINDS'] = {'slave' : SQLALCHEMY_DATABASE_URI,
+                                  'spatial_db' : SQLALCHEMY_ST_DATABASE_URI}
+
 
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 

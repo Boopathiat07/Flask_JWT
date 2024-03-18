@@ -1,4 +1,5 @@
 from create_app import db
+from geoalchemy2 import Geometry
 
 class master(db.Model):
     __tablename__ = 'users'
@@ -41,4 +42,37 @@ class user_session(db.Model):
         self.logout = logout
         self.user_id = user_id
         self.islogout = islogout
+
+
+class Polygon_table(db.Model):
+    __bind_key__ = 'spatial_db'
+    __tablename__ = 'polygon_table'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50))
+    geom = db.Column(Geometry('POLYGON', srid=4326))
+    
+    def __init__(self, id, name, geom):
+        self.id = id
+        self.name = name
+        self.geom = geom
+
+
+class Restaurant(db.Model):
+    __bind_key__ = 'spatial_db'
+    __tablename__ = 'restaurant'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    distance = db.Column(db.Float, nullable=False)
+    location = db.Column(Geometry('POINT'), nullable=False)
+    address = db.Column(db.String(255), nullable=False)
+
+    def __init__(self, id, name, distance, location, address):
+        self.id = id
+        self.name = name
+        self.distance = distance
+        self.location = location
+        self.address = address
+
+        
+
 
