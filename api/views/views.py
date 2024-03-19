@@ -1,12 +1,18 @@
-from create_app import db, bcrypt, redis_cache, cache
+from factory import create_app
 from flask import Blueprint, request
-from dbModels import user_session
-from dbModels import master, slave 
+from api.service.dbModels import user_session
+from api.service.dbModels import master, slave 
 import random, string
-from jwtservice import generate_access_token, generate_refresh_token,authenticate, uniqueId
+from api.service.jwtservice import generate_access_token, generate_refresh_token,authenticate, uniqueId
 from datetime import datetime
-from response import response
-from errorhandling import ErrorHandling
+from api.service.response import response
+from api.service.errorhandling import ErrorHandling
+from api.service.validator import Signup, Login
+
+db = create_app.db
+bcrypt = create_app.bcrypt
+redis_cache = create_app.redis_cache
+cache = create_app.cache
 
 user_view= Blueprint('user', __name__, url_prefix='/api/v1/')
 
@@ -18,10 +24,12 @@ def random_string_generator():
 @user_view.route("/signup", methods=['POST'])
 def user_signup():
     try:
-        data = request.get_json()        
+        data = request.get_json()             
+        try:
+            Signup(**data)
 
-        if 'email' not in data or 'mobile' not in data or 'password' not in data or 'name' not in data:
-            return ErrorHandling.hanlde_bad_request("required field should not be empty")
+        except Exception as e:
+            return ErrorHandling.hanlde_bad_request(str(e))
 
         email = data.get('email')
         mobile = data.get('mobile')
@@ -37,14 +45,7 @@ def user_signup():
         except:
             return ErrorHandling.hanlde_bad_request("User Already Exist")
 
-        accessToken = generate_access_token(email)
-        refreshToken = generate_refresh_token(email)
-
-        token = {
-            "accessToken" : accessToken, 
-            "refreshToken" : refreshToken
-        }
-        return response.function(token)
+        return response.function("SuccesFully SignedUp")
     
     except Exception as e:
         db.session.rollback()
@@ -55,7 +56,14 @@ def user_signup():
 def userLogin():
     try:
         data = request.get_json()
-         
+
+        try:
+            Login(**data)
+
+        except Exception as e:
+            return ErrorHandling.hanlde_bad_request(str(e))
+
+
         email = str(data.get('email'))
         password = str(data.get('password'))
         try:
@@ -101,7 +109,6 @@ def userLogOut():
 @user_view.route("/getprofile", methods = ['GET'])
 @cache.cached(timeout=30, make_cache_key=uniqueId)
 def userprofile():
-    print("hey !!!")
     user_id = request.current_user
     try:
         user = db.get_or_404(slave, user_id)
@@ -115,7 +122,7 @@ def userprofile():
 @user_view.route("/updateuser", methods = ['PUT'])
 def updateProfile():
     data = request.get_json()
-
+    
     user_id = request.current_user
     try:
         user = db.get_or_404(master, user_id)

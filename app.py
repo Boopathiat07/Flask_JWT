@@ -1,9 +1,12 @@
-from create_app import db, app
-from api.views import user_view
-from api.google_oauth import oauth2_view
-from api.mongodb_crud import mongodb_view
-from api.file_upload import file_view
-from api.geo_code_data import geo_view
+from factory import create_app
+from api.views.views import user_view
+from api.views.google_oauth import oauth2_view
+from api.views.mongodb_crud import mongodb_view
+from api.views.file_upload import file_view
+from api.views.geo_code_data import geo_view
+
+app = create_app.app
+db = create_app.db
 
 app.register_blueprint(user_view)
 app.register_blueprint(oauth2_view)
@@ -16,5 +19,6 @@ with app.app_context():
     db.session.commit()
 
 if __name__ == "__main__":
+
     app.run(debug=True)
 

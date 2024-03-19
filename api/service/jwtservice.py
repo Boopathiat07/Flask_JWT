@@ -1,11 +1,14 @@
 import jwt
 from datetime import datetime, timedelta
 import uuid
-from create_app import app, db, redis_cache
-from dbModels import user_session, master as user
+from factory import create_app 
+from api.service.dbModels import user_session, master as user
 from flask import request
-from errorhandling import ErrorHandling
+from api.service.errorhandling import ErrorHandling
 
+app = create_app.app
+db = create_app.db
+redis_cache = create_app.redis_cache
 
 uniqueId = str(uuid.uuid4())
 logintime = datetime.utcnow()

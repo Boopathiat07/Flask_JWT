@@ -1,6 +1,7 @@
-from create_app import db
+from factory import create_app
 from geoalchemy2 import Geometry
 
+db = create_app.db
 class master(db.Model):
     __tablename__ = 'users'
     email = db.Column(db.String(30), primary_key = True)

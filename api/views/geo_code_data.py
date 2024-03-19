@@ -1,19 +1,20 @@
 
-from create_app import db
-from dbModels import Polygon_table, Restaurant
+from factory import create_app
+from api.service.dbModels import Polygon_table, Restaurant
 from flask import Blueprint, request
 from geoalchemy2 import WKTElement
 from geoalchemy2.shape import to_shape
 from shapely.geometry import Point, Polygon
 from sqlalchemy import func
-from errorhandling import ErrorHandling
-from response import response
+from api.service.errorhandling import ErrorHandling
+from api.service.response import response
 from geopy.distance import geodesic
 
+db = create_app.db
 
 geo_view = Blueprint('geo_view', __name__,url_prefix="/api/v4")
 
-@geo_view.route("/addpolygon")
+@geo_view.route("/addpolygon", methods=['POST'])
 def insert_polygon():
     try:
         # points = [
@@ -37,7 +38,6 @@ def insert_polygon():
         for point in polygon_points:
             points.append(Point(point.get('longitude'), point.get('latitude')))
     
-    
         polygon_geom = Polygon([[point.x, point.y] for point in points])
         wkt_element = WKTElement(polygon_geom.wkt, srid=4326)
         polygon1 = Polygon_table(id= id, name=name, geom= wkt_element)
@@ -50,7 +50,7 @@ def insert_polygon():
     except Exception as e:
         return ErrorHandling.handle_server_request(str(e))
 
-@geo_view.route("/check_point_in_polygon")
+@geo_view.route("/check_point_in_polygon", methods = ['GET'])
 def is_point_inside_polygon():
     try:
         latitude = request.args.get('latitude')
@@ -78,7 +78,7 @@ def is_point_inside_polygon():
         return ErrorHandling.handle_server_request(str(e))
 
 
-@geo_view.route("/add_restaruant")
+@geo_view.route("/add_restaruant", methods = ['POST'])
 def insert_restaruant():
     try:
         data = request.get_json()
@@ -89,7 +89,6 @@ def insert_restaruant():
         latitude = data['latitude']
         longitude = data['longitude']
         
-        print(latitude, longitude)
         location = func.ST_GeomFromText('POINT({} {})'.format(longitude, latitude))
     
         address = data['address']
@@ -114,7 +113,7 @@ def format_distance(distance_km):
         return f"{distance_km:.2f} kilometers"
     
 
-@geo_view.route("/restaruants_nearby")
+@geo_view.route("/restaruants_nearby", methods = ['GET'])
 def user_surrounded_restaruants():
     try:
         latitude = request.args.get('latitude')
@@ -153,7 +152,7 @@ def user_surrounded_restaruants():
         return ErrorHandling.handle_server_request(str(e))
 
 
-@geo_view.route("/sortingbydistance")
+@geo_view.route("/sortingbydistance", methods = ['GET'])
 def sorting_restaurant():
     try:
         latitude = request.args.get('latitude')

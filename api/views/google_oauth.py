@@ -1,9 +1,10 @@
-from create_app import app
+from factory import create_app
 from authlib.integrations.flask_client import OAuth
 from flask import url_for, Blueprint
 import os
 from dotenv import load_dotenv
 
+app = create_app.app
 load_dotenv()
 
 GOOGLE_CLIENT_ID=os.getenv('GOOGLE_CLIENT_ID')

@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-import smtplib, random, string
+import smtplib, random
 
 load_dotenv()
 
