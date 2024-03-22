@@ -3,7 +3,7 @@ from flask import Blueprint, request
 from models.db_models import User, Group, Api
 from response.response import response
 from response.errorhandling import ErrorHandling
-from validation.validator import LoginSchema
+from validation.validator import LoginSchema, AddUserSchema
 from service.jwt_service import generate_access_token, generate_refresh_token
 
 view = Blueprint("view", __name__ , url_prefix="/api/v1")
@@ -13,7 +13,6 @@ session = Session()
 def login():
     try:
         data = request.get_json()
-        
         schema = LoginSchema()
         try:
             schema.load(data)  
@@ -39,6 +38,12 @@ def login():
 @view.route("/add_user",methods = ['POST'])
 def add_user():
     data = request.get_json()
+    schema = AddUserSchema()
+    try:
+        schema.load(data)  
+    except Exception as e:
+        return ErrorHandling.hanlde_bad_request(str(e))
+    
     username = data['name']
     email = data['emal']
     is_writable = False    

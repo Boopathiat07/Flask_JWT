@@ -3,6 +3,7 @@ from response.response import response
 from config import Session
 from models.db_models import User, Group, Api
 from response.errorhandling import ErrorHandling
+from validation.validator import *
 session = Session()
 
 rbac_view = Blueprint("rbac_view", __name__, url_prefix="/rbac/api/v2")
@@ -11,6 +12,11 @@ rbac_view = Blueprint("rbac_view", __name__, url_prefix="/rbac/api/v2")
 def add_group_to_user():
     try:
         data = request.get_json()    
+        schema = UserGroup()
+        try:
+            schema.load(data)  
+        except Exception as e:
+            return ErrorHandling.hanlde_bad_request(str(e))
         email = data['email']
         grp_name = data['grp_name']
 
@@ -28,7 +34,11 @@ def add_group_to_user():
 def add_api_to_group():
     try:
         data = request.get_json()
-
+        schema = ApiGroup()
+        try:
+            schema.load(data)  
+        except Exception as e:
+            return ErrorHandling.hanlde_bad_request(str(e))
         base_path = data['base_path']
         grp_name = data['grp_name']
         
@@ -49,7 +59,11 @@ def add_api_to_group():
 def grant_permission():
     try:
         data = request.get_json()
-
+        schema = GrantPermission()
+        try:
+            schema.load(data)  
+        except Exception as e:
+            return ErrorHandling.hanlde_bad_request(str(e))
         email = data['email']
         
         user = session.query(User).filter_by(email=email).one() 
@@ -67,7 +81,11 @@ def grant_permission():
 def add_group():
     try:
         data = request.get_json()
-    
+        schema = AddGroup()
+        try:
+            schema.load(data)  
+        except Exception as e:
+            return ErrorHandling.hanlde_bad_request(str(e))
         grp_name = data['grp_name']
     
         groups = Group(grp_name=grp_name)
